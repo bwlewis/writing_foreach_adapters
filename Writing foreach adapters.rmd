@@ -75,7 +75,7 @@ library(foreach)
 ```{r}
 system.time(print(
   foreach(j = seq(2), .combine=sum) %dopar% {
-    Sys.sleep(.1)
+    Sys.sleep(1)
     j
   }
 ))
@@ -95,7 +95,7 @@ library(doParallel, quietly = TRUE)
 registerDoParallel(2)
 system.time(print(
   foreach(j = seq(2), .combine=sum) %dopar% {
-    Sys.sleep(.1)
+    Sys.sleep(1)
     j
   }
 ))

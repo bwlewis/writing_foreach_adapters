@@ -156,27 +156,27 @@ foreach(…)
 <p>Consider the following really simple example:</p>
 <pre class="r"><code>system.time(print(
   foreach(j = seq(2), .combine=sum) %dopar% {
-    Sys.sleep(.1)
+    Sys.sleep(1)
     j
   }
 ))</code></pre>
 <pre><code>## Warning: executing %dopar% sequentially: no parallel backend registered</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.040   0.008   0.248</code></pre>
+##   0.048   0.000   2.052</code></pre>
 <p>Note the warning that no parallel backend adapter was registered and the loop has been evaluated sequentially. This loop iterates over a parameter variable <code>j</code> and the loop expression is evaluated twice, once for each value of <code>j</code>. The result of each expression evaluation is collected and passed to the <code>sum</code> function specified by the <code>.combine</code> option. In other words, the two possible values of <code>j</code> are <em>mapped</em> to the expression and the returned results are <em>reduced</em> through the <code>sum</code> function.</p>
 <p>Now let’s try a simple parallel adapter using two local CPU cores:</p>
 <pre class="r"><code>library(doParallel, quietly = TRUE)
 registerDoParallel(2)
 system.time(print(
   foreach(j = seq(2), .combine=sum) %dopar% {
-    Sys.sleep(.1)
+    Sys.sleep(1)
     j
   }
 ))</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.020   0.004   0.123</code></pre>
+##   0.024   0.024   1.033</code></pre>
 <p>Note that the run time has been roughly halved as expected thanks to concurrent evaluation of each expression evaluation.</p>
 <p>The <code>foreach</code> function is responsible for setting up important loop details. It returns an R object of class foreach containing details including:</p>
 <ul>
@@ -339,12 +339,12 @@ doR &lt;- function(obj, expr, envir, data)
 <pre class="r"><code>registerDoR(chunkSize = 1)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 10105 10115 10125</code></pre>
+<pre><code>## [1] 11816 11826 11836</code></pre>
 <p>Note that there are three distinct process IDs, indicating that each loop iteration was evaluated by a separate R worker process. Registering a different <code>chunkSize</code> value lets us change that at run time.</p>
 <pre class="r"><code>registerDoR(chunkSize = 3)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 10135 10135 10135</code></pre>
+<pre><code>## [1] 11846 11846 11846</code></pre>
 </div>
 <div id="where-to-go-from-here" class="section level1">
 <h1>Where to go from here</h1>
