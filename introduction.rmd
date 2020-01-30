@@ -32,7 +32,7 @@ comprehension-style syntax inspired by Python and Haskell (see the `%:%`
 operator and `when` function).
 
 
-# The structure of a `foreach` loop
+## The structure of a `foreach` loop
 
 Basic `foreach` loops that can take advantage of parallel adapters
 consist of three parts:
@@ -128,7 +128,7 @@ R expression, retrieve the results, and feed the results into an accumulator
 (reduction) function defined by the `foreach` object to return the result.
 
 
-# Run-time and 'compile'-time options
+## Run-time and 'compile'-time options
 
 Foreach adapters supply a registration function to register the adapter with
 `%dopar%`. These functions are usually called `registerDo*`, replacing `*` with
@@ -145,7 +145,7 @@ non-associativity of floating point arithmetic and bounded integer values,
 among other potential pitfalls.
 
 
-# Writing a simple adapter
+## Writing a simple adapter
 
 This guide proceeds by building a simple adapter called 'doR' designed to be as
 simple of an example as I could think of. The adapter does not compute its
@@ -313,7 +313,7 @@ doR <- function(obj, expr, envir, data)
 ```
 
 
-# Let's try it out!
+## Let's try it out!
 
 The following example registers out simple 'doR' adapter with `chunkSize=1`
 which means each R worker process will process a single loop iteration. We
@@ -336,7 +336,7 @@ registerDoR(chunkSize = 3)
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()
 ```
 
-# Where to go from here
+## Where to go from here
 
 The biggest omission in the simple example above is handling of random number
 streams across the loop iterations. Fortunately, R has excellent support for

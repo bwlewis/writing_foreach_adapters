@@ -2,6 +2,8 @@
 
 This repository includes guides, code examples, and notes on writing
 adapters for R's foreach package: https://cran.r-project.org/package=foreach
+It's a work in progress. I've got a draft of a basic introductory section
+and plan to add other, more detailed, sections over time.
 
 The foreach package defines an interface between R programs and back-end
 systems that can, for example, evaluate code in parallel.
@@ -13,4 +15,4 @@ to writing new adapters.
 You can view raw R Markdown files in the repository, and also see example
 HTML output of them at these links:
 
-- https://bwlewis.github.io/writing_foreach_adapters/Writing_foreach_adapters.html
+- https://bwlewis.github.io/writing_foreach_adapters/introduction.html

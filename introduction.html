@@ -131,9 +131,8 @@ $(document).ready(function () {
 <p>In the high-performance computing vernacular, the foreach package defines an application programming interface (API) for a remote procedure call, map/reduce framework. We will see specific examples of these concepts below.</p>
 <p>Despite the long history of the foreach package, developed in 2008 by Steve and his team at Revolution Computing (including me), and the availability of many supported adapter packages, the internal foreach adapter interface is not very explicitly documented. This guide documents the foreach API and serves as a basic introduction to writing adapter packages.</p>
 <p>It should be noted that there are neat ideas in the foreach package aside from the topics covered here, including loop nesting/unrolling and list comprehension-style syntax inspired by Python and Haskell (see the <code>%:%</code> operator and <code>when</code> function).</p>
-</div>
-<div id="the-structure-of-a-foreach-loop" class="section level1">
-<h1>The structure of a <code>foreach</code> loop</h1>
+<div id="the-structure-of-a-foreach-loop" class="section level2">
+<h2>The structure of a <code>foreach</code> loop</h2>
 <p>Basic <code>foreach</code> loops that can take advantage of parallel adapters consist of three parts:</p>
 <center>
 <table style="border: 0px solid;">
@@ -163,7 +162,7 @@ foreach(…)
 <pre><code>## Warning: executing %dopar% sequentially: no parallel backend registered</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.048   0.000   2.052</code></pre>
+##   0.056   0.000   2.060</code></pre>
 <p>Note the warning that no parallel backend adapter was registered and the loop has been evaluated sequentially. This loop iterates over a parameter variable <code>j</code> and the loop expression is evaluated twice, once for each value of <code>j</code>. The result of each expression evaluation is collected and passed to the <code>sum</code> function specified by the <code>.combine</code> option. In other words, the two possible values of <code>j</code> are <em>mapped</em> to the expression and the returned results are <em>reduced</em> through the <code>sum</code> function.</p>
 <p>Now let’s try a simple parallel adapter using two local CPU cores:</p>
 <pre class="r"><code>library(doParallel, quietly = TRUE)
@@ -176,7 +175,7 @@ system.time(print(
 ))</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.024   0.024   1.033</code></pre>
+##   0.016   0.016   1.028</code></pre>
 <p>Note that the run time has been roughly halved as expected thanks to concurrent evaluation of each expression evaluation.</p>
 <p>The <code>foreach</code> function is responsible for setting up important loop details. It returns an R object of class foreach containing details including:</p>
 <ul>
@@ -195,17 +194,18 @@ system.time(print(
 </ul>
 <p>It’s the responsibility of the parallel adapter function to map the data to the R expression, retrieve the results, and feed the results into an accumulator (reduction) function defined by the <code>foreach</code> object to return the result.</p>
 </div>
-<div id="run-time-and-compile-time-options" class="section level1">
-<h1>Run-time and ‘compile’-time options</h1>
+<div id="run-time-and-compile-time-options" class="section level2">
+<h2>Run-time and ‘compile’-time options</h2>
 <p>Foreach adapters supply a registration function to register the adapter with <code>%dopar%</code>. These functions are usually called <code>registerDo*</code>, replacing <code>*</code> with the name of the adapter. The registration function allows users to configure run-time specific adapter details.</p>
 <p>Arguments supplied to the <code>foreach</code> function itself, by comparison, are so-called ‘compile’-time options and are independent of run-time specific behavior.</p>
 <p>The foreach (and future package) philosophy is that computed results should be independent of run-time options. Be aware that in practice that can’t always be achieved. Numerical computations, for instance, are subject to the non-associativity of floating point arithmetic and bounded integer values, among other potential pitfalls.</p>
 </div>
-<div id="writing-a-simple-adapter" class="section level1">
-<h1>Writing a simple adapter</h1>
+<div id="writing-a-simple-adapter" class="section level2">
+<h2>Writing a simple adapter</h2>
 <p>This guide proceeds by building a simple adapter called ‘doR’ designed to be as simple of an example as I could think of. The adapter does not compute its results in parallel, but does illustrate, very simply, most of the important details needed to implement an adapter.</p>
 <p>The doR adapter launches worker R processes on the local machine using the ‘callr’ package. Each worker R process evaluates, in sequence, one or more loop iterations depending on a run-time option.</p>
 <p>Foreach adapters consist of two main parts: a registration function, and an evaluation function.</p>
+</div>
 <div id="registration" class="section level2">
 <h2>Registration</h2>
 <p>Registration declares the name of the evaluation function that <code>%dopar%</code> will end up calling, along with any extra run-time options your adapter requires. Our simple doR adapter has a single option, <code>chunkSize</code> that determines the number of loop iterations run per task.</p>
@@ -332,23 +332,23 @@ doR &lt;- function(obj, expr, envir, data)
   getResult(it)
 }</code></pre>
 </div>
-</div>
-<div id="lets-try-it-out" class="section level1">
-<h1>Let’s try it out!</h1>
+<div id="lets-try-it-out" class="section level2">
+<h2>Let’s try it out!</h2>
 <p>The following example registers out simple ‘doR’ adapter with <code>chunkSize=1</code> which means each R worker process will process a single loop iteration. We accumulate results through R’s concatenate function with the option <code>.combine = c</code>. Each loop iteration returns the system process ID of the R worker process.</p>
 <pre class="r"><code>registerDoR(chunkSize = 1)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 11816 11826 11836</code></pre>
+<pre><code>## [1] 17180 17190 17200</code></pre>
 <p>Note that there are three distinct process IDs, indicating that each loop iteration was evaluated by a separate R worker process. Registering a different <code>chunkSize</code> value lets us change that at run time.</p>
 <pre class="r"><code>registerDoR(chunkSize = 3)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 11846 11846 11846</code></pre>
+<pre><code>## [1] 17210 17210 17210</code></pre>
 </div>
-<div id="where-to-go-from-here" class="section level1">
-<h1>Where to go from here</h1>
+<div id="where-to-go-from-here" class="section level2">
+<h2>Where to go from here</h2>
 <p>The biggest omission in the simple example above is handling of random number streams across the loop iterations. Fortunately, R has excellent support for high-quality reproducible distributed random number generation based on methods developed by L’Ecuyer. The full implementation details require a modicum of effort. I recommend checking out the ‘doRedis’ package source code (<a href="https://github.com/bwlewis/doRedis" class="uri">https://github.com/bwlewis/doRedis</a>) for an example implementation. The doRedis adapter generates reproducible random number sequences independent of the number of back-end worker processes and number of loop iterations evaluted per process.</p>
+</div>
 </div>
 
 
