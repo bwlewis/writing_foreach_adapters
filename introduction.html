@@ -130,7 +130,7 @@ $(document).ready(function () {
 <p>Code using foreach runs sequentially in the absence of a parallel adapter, and works uniformly, more or less, across different adapters. Importantly, adapters are registered at run-time, allowing programmers and R package authors to write programs independent of specific parallel computing implementations. Package authors decide <em>which</em> parts of their programs can run in parallel, and users decide <em>how</em> to run in parallel depending on their available resources. This philosophy is shared by the closely-related ‘future’ package.</p>
 <p>In the high-performance computing vernacular, the foreach package defines an application programming interface (API) for a remote procedure call, map/reduce framework. We will see specific examples of these concepts below.</p>
 <p>Despite the long history of the foreach package, developed in 2008 by Steve and his team at Revolution Computing (including me), and the availability of many supported adapter packages, the internal foreach adapter interface is not very explicitly documented. This guide documents the foreach API and serves as a basic introduction to writing adapter packages.</p>
-<p>It should be noted that there are neat ideas in the foreach package aside from the topics covered here, including loop nesting/unrolling and list comprehension-style syntax inspired by Python and Haskell (see the <code>%:%</code> operator and <code>when</code> function).</p>
+<p>It should be noted that there are neat ideas in the foreach package aside from the topics covered here, including loop composition and set comprehension-style syntax inspired by Python and Haskell (see the <code>%:%</code> operator and <code>when</code> function).</p>
 <div id="the-structure-of-a-foreach-loop" class="section level2">
 <h2>The structure of a <code>foreach</code> loop</h2>
 <p>Basic <code>foreach</code> loops that can take advantage of parallel adapters consist of three parts:</p>
@@ -162,7 +162,7 @@ foreach(…)
 <pre><code>## Warning: executing %dopar% sequentially: no parallel backend registered</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.056   0.000   2.060</code></pre>
+##   0.056   0.000   2.061</code></pre>
 <p>Note the warning that no parallel backend adapter was registered and the loop has been evaluated sequentially. This loop iterates over a parameter variable <code>j</code> and the loop expression is evaluated twice, once for each value of <code>j</code>. The result of each expression evaluation is collected and passed to the <code>sum</code> function specified by the <code>.combine</code> option. In other words, the two possible values of <code>j</code> are <em>mapped</em> to the expression and the returned results are <em>reduced</em> through the <code>sum</code> function.</p>
 <p>Now let’s try a simple parallel adapter using two local CPU cores:</p>
 <pre class="r"><code>library(doParallel, quietly = TRUE)
@@ -175,7 +175,7 @@ system.time(print(
 ))</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.016   0.016   1.028</code></pre>
+##   0.020   0.020   1.028</code></pre>
 <p>Note that the run time has been roughly halved as expected thanks to concurrent evaluation of each expression evaluation.</p>
 <p>The <code>foreach</code> function is responsible for setting up important loop details. It returns an R object of class foreach containing details including:</p>
 <ul>
@@ -338,12 +338,12 @@ doR &lt;- function(obj, expr, envir, data)
 <pre class="r"><code>registerDoR(chunkSize = 1)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 17180 17190 17200</code></pre>
+<pre><code>## [1] 17286 17296 17306</code></pre>
 <p>Note that there are three distinct process IDs, indicating that each loop iteration was evaluated by a separate R worker process. Registering a different <code>chunkSize</code> value lets us change that at run time.</p>
 <pre class="r"><code>registerDoR(chunkSize = 3)
 
 foreach(j = 1:3, .combine=c)  %dopar% Sys.getpid()</code></pre>
-<pre><code>## [1] 17210 17210 17210</code></pre>
+<pre><code>## [1] 17316 17316 17316</code></pre>
 </div>
 <div id="where-to-go-from-here" class="section level2">
 <h2>Where to go from here</h2>

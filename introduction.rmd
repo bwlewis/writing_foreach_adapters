@@ -27,7 +27,7 @@ not very explicitly documented. This guide documents the foreach API and
 serves as a basic introduction to writing adapter packages.
 
 It should be noted that there are neat ideas in the foreach package aside
-from the topics covered here, including loop nesting/unrolling and  list
+from the topics covered here, including loop composition and set
 comprehension-style syntax inspired by Python and Haskell (see the `%:%`
 operator and `when` function).
 

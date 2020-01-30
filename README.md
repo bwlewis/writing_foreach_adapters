@@ -15,4 +15,9 @@ to writing new adapters.
 You can view raw R Markdown files in the repository, and also see example
 HTML output of them at these links:
 
-- https://bwlewis.github.io/writing_foreach_adapters/introduction.html
+- Introduction https://bwlewis.github.io/writing_foreach_adapters/introduction.html
+- Code-time foreach parameters and their use
+- Reproducible parallel RNG
+- Foreach loop composition for efficient nested parallel routines
+- Set comprehensions
+- Some issues with foreach and comparison with the future package
